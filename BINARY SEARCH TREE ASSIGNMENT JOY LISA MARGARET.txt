@@ -1,0 +1,106 @@
+LISA WANJIKU NDIRANGU SCT221-0562/2022
+JOY WANJIRU SCT221-0210/2022
+MARGARET KARANJA SCT221-0229/2022
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for a binary tree node
+struct TreeNode {
+    int data;
+    struct TreeNode *left;
+    struct TreeNode *right;
+};
+
+// Function to create a new tree node
+struct TreeNode* newTreeNode(int data) {
+    struct TreeNode* node = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+// Function to find the index of a value in an array
+int findIndex(int arr[], int start, int end, int value) {
+    int i;
+    for (i = start; i <= end; i++) {
+        if (arr[i] == value) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Recursive function to construct a binary search tree from in-order and post-order traversals
+struct TreeNode* buildBST(int inOrder[], int postOrder[], int inStart, int inEnd, int* postIndex) {
+    if (inStart > inEnd) {
+        return NULL;
+    }
+    
+    // Create a new node with the current post-order element
+    struct TreeNode* node = newTreeNode(postOrder[*postIndex]);
+    (*postIndex)--;
+    
+    // If the current subtree has only one element
+    if (inStart == inEnd) {
+        return node;
+    }
+    
+    // Find the index of current node in in-order traversal
+    int inIndex = findIndex(inOrder, inStart, inEnd, node->data);
+    
+    // Recursively build right and left subtrees
+    node->right = buildBST(inOrder, postOrder, inIndex + 1, inEnd, postIndex);
+    node->left = buildBST(inOrder, postOrder, inStart, inIndex - 1, postIndex);
+    
+    return node;
+}
+
+// Function to traverse the tree in BFS and print each element
+void BFS(struct TreeNode* root) {
+    if (root == NULL) {
+        return;
+    }
+    
+    // Create a queue for BFS
+    struct TreeNode* queue[100];
+    int front = 0, rear = -1;
+    queue[++rear] = root;
+    
+    while (front <= rear) {
+        struct TreeNode* current = queue[front++];
+        printf("%d ", current->data);
+        
+        if (current->left != NULL) {
+            queue[++rear] = current->left;
+        }
+        if (current->right != NULL) {
+            queue[++rear] = current->right;
+        }
+    }
+}
+
+// Function to construct the binary search tree using in-order and post-order traversals
+struct TreeNode* bst_construct(int inOrder[], int postOrder[], int size) {
+    int postIndex = size - 1;
+    return buildBST(inOrder, postOrder, 0, size - 1, &postIndex);
+}
+
+int main() {
+    int postOrder[] = {5, 15, 10, 25, 45, 30, 20};
+    int inOrder[] = {5, 10, 15, 20, 25, 30, 45};
+    int size = sizeof(inOrder) / sizeof(inOrder[0]);
+
+    // Construct the binary search tree
+    struct TreeNode* root = bst_construct(inOrder, postOrder, size);
+
+    // Traverse the binary search tree in BFS and print each element
+    printf("BFS traversal of the constructed BST: ");
+    BFS(root);
+    printf("\n");
+
+    return 0;
+}
